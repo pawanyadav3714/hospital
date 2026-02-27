@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BooknMeet - Hospital & Appointment Finder</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <header class="navbar">
+      <nav class="nav-container">
+        <div class="auth-buttons">
+          <button class="btn btn-secondary" onclick="openAuthModal('login')">
+            Login
+          </button>
+          <button class="btn btn-primary" onclick="openAuthModal('register')">
+            Register
+          </button>
+        </div>
+        <div class="logo"><i class="fas fa-hospital"></i> BooknMeet</div>
+        <ul class="nav-links">
+          <li><a href="#home" class="nav-link">Home</a></li>
+          <li><a href="#hospitals" class="nav-link">Hospitals</a></li>
+          <li><a href="#features" class="nav-link">Features</a></li>
+          <li><a href="#contact" class="nav-link">Contact</a></li>
+        </ul>
+        <div class="hamburger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Authentication Modal -->
+    <div class="modal" id="auth-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="auth-title">Register</h2>
+          <button class="close-btn" onclick="closeAuthModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <!-- Role Selection -->
+        <div class="role-toggle">
+          <button
+            class="role-btn active"
+            onclick="setRole('patient')"
+            id="patient-role"
+          >
+            Patient
+          </button>
+          <button class="role-btn" onclick="setRole('doctor')" id="doctor-role">
+            Doctor
+          </button>
+        </div>
+
+        <form id="auth-form" onsubmit="submitAuth(event)">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="auth-name" required />
+          </div>
+
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" id="auth-email" required />
+          </div>
+
+          <div class="form-group doctor-only" style="display: none">
+            <label>Specialty *</label>
+            <select id="doctor-specialty">
+              <option value="">Select Specialty</option>
+              <option>Cardiology</option>
+              <option>Orthopedics</option>
+              <option>Neurology</option>
+              <option>Pediatrics</option>
+              <option>Dentistry</option>
+              <option>Oncology</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Password *</label>
+            <input type="password" id="auth-password" required />
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+        </form>
+
+        <p style="margin-top: 1rem; text-align: center">
+          Already have an account?
+          <span
+            style="color: var(--primary); cursor: pointer"
+            onclick="toggleAuthMode()"
+            >Switch Mode</span
+          >
+        </p>
+      </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+      <div class="hero-content">
+        <h1>Find Hospitals & Book Appointments</h1>
+        <p>
+          Discover nearby hospitals, compare specialists, and book your
+          appointment in minutes
+        </p>
+        <button
+          class="btn btn-primary btn-lg scroll-btn"
+          onclick="
+            document
+              .querySelector('.search-filters')
+              .scrollIntoView({ behavior: 'smooth' })
+          "
+        >
+          Start Searching <i class="fas fa-arrow-down"></i>
+        </button>
+      </div>
+      <!-- <div class="hero-image">
+        <i class="fas fa-hospital-user"></i>
+      </div> -->
+    </section>
+
+    <!-- Main Container -->
+    <div class="container">
+      <!-- Search & Filter Section -->
+      <section class="search-section" id="hospitals">
+        <h2 class="section-title">Find Your Perfect Hospital</h2>
+        <div class="search-filters">
+          <div class="search-row">
+            <div class="form-group">
+              <label for="location-input">📍 Location</label>
+              <input
+                type="text"
+                id="location-input"
+                placeholder="Search by city (Mumbai, Delhi, Bangalore...)"
+                autocomplete="off"
+              />
+              <small class="helper-text"
+                >Cities: Mumbai, Delhi, Bangalore, Pune, Chennai, Hyderabad,
+                Gurgaon</small
+              >
+            </div>
+            <div class="form-group">
+              <label for="specialty-input">🏥 Specialty</label>
+              <select id="specialty-input">
+                <option value="">All Specialties</option>
+                <option value="cardiology">Cardiology</option>
+                <option value="orthopedics">Orthopedics</option>
+                <option value="neurology">Neurology</option>
+                <option value="pediatrics">Pediatrics</option>
+                <option value="dentistry">Dentistry</option>
+                <option value="oncology">Oncology</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="filter-row">
+            <div class="form-group">
+              <label for="rating-input">⭐ Rating (Min)</label>
+              <div class="slider-container">
+                <input
+                  type="range"
+                  id="rating-input"
+                  min="0"
+                  max="5"
+                  step="0.5"
+                  value="0"
+                  class="range-slider"
+                />
+                <span class="range-value" id="rating-value">Any</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="budget-input">💰 Budget/Visit</label>
+              <div class="slider-container">
+                <input
+                  type="range"
+                  id="budget-input"
+                  min="0"
+                  max="10000"
+                  step="500"
+                  value="10000"
+                  class="range-slider"
+                />
+                <span class="range-value" id="budget-value">₹10,000</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="availability-input">🕐 Availability</label>
+              <select id="availability-input">
+                <option value="">All Times</option>
+                <option value="morning">🌅 Morning</option>
+                <option value="afternoon">☀️ Afternoon</option>
+                <option value="evening">🌆 Evening</option>
+                <option value="24hours">🌙 24 Hours</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button class="btn btn-primary btn-search" id="search-btn">
+              <i class="fas fa-search"></i> Search Hospitals
+            </button>
+            <button class="btn btn-secondary" id="clear-btn">
+              <i class="fas fa-redo"></i> Reset
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Results & Stats -->
+      <section class="results-section">
+        <div class="results-header">
+          <div>
+            <h3 class="results-title">Available Hospitals</h3>
+            <p class="results-count">
+              Found <strong id="hospital-count">52</strong> hospitals
+            </p>
+          </div>
+          <div id="active-filters" class="active-filters" style="display: none">
+            <span class="filter-chip" id="filters-text"></span>
+          </div>
+        </div>
+
+        <!-- Success Message -->
+        <div class="success-message" id="success-message">
+          <i class="fas fa-check-circle"></i> Appointment booked successfully!
+          Check your email for confirmation.
+        </div>
+
+        <!-- Hospitals Grid -->
+        <div class="hospitals-grid" id="hospitals-grid">
+          <!-- Hospitals will be dynamically inserted here -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="empty-state" style="display: none">
+          <div class="empty-state-icon">🔍</div>
+          <h3>No hospitals found</h3>
+          <p>Try adjusting your search filters or location</p>
+          <button class="btn btn-secondary" onclick="resetFilters()">
+            Reset Filters
+          </button>
+        </div>
+      </section>
+
+      <!-- Features Section -->
+      <section class="features-section" id="features">
+        <h2 class="section-title">Why Choose BooknMeet?</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <i class="fas fa-search-location"></i>
+            <h3>Smart Search</h3>
+            <p>
+              Find hospitals by location, specialty, and availability instantly
+            </p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-star"></i>
+            <h3>Verified Ratings</h3>
+            <p>Compare hospitals based on real patient reviews and ratings</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-calendar-alt"></i>
+            <h3>Easy Booking</h3>
+            <p>Book appointments with your preferred doctor in minutes</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-stethoscope"></i>
+            <h3>Expert Doctors</h3>
+            <p>Access to verified specialists across multiple disciplines</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-wallet"></i>
+            <h3>Transparent Pricing</h3>
+            <p>Know the cost upfront, no hidden charges</p>
+          </div>
+          <div class="feature-card">
+            <i class="fas fa-mobile-alt"></i>
+            <h3>Mobile Friendly</h3>
+            <p>Book appointments on the go, anytime, anywhere</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact Section -->
+      <section class="contact-section" id="contact">
+        <h2 class="section-title">Get in Touch</h2>
+        <div class="contact-grid">
+          <div class="contact-card">
+            <i class="fas fa-phone"></i>
+            <h3>Call Us</h3>
+            <p>+91 1234-567-890</p>
+          </div>
+          <div class="contact-card">
+            <i class="fas fa-envelope"></i>
+            <h3>Email</h3>
+            <p>support@booknmeet.com</p>
+          </div>
+          <div class="contact-card">
+            <i class="fas fa-map-marker-alt"></i>
+            <h3>Location</h3>
+            <p>India | Available Nationwide</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Booking Modal -->
+    <div class="modal" id="booking-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Book Your Appointment</h2>
+          <button class="close-btn" onclick="closeBookingModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="modal-hospital-info" id="modal-hospital-info"></div>
+
+        <form id="booking-form" onsubmit="submitBooking(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="patient-name">Full Name *</label>
+              <input
+                type="text"
+                id="patient-name"
+                required
+                placeholder="Your name"
+              />
+            </div>
+            <div class="form-group">
+              <label for="patient-email">Email *</label>
+              <input
+                type="email"
+                id="patient-email"
+                required
+                placeholder="your@email.com"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="patient-phone">Phone *</label>
+              <input
+                type="tel"
+                id="patient-phone"
+                required
+                placeholder="+91 XXXXX XXXXX"
+              />
+            </div>
+            <div class="form-group">
+              <label for="patient-age">Age</label>
+              <input
+                type="number"
+                id="patient-age"
+                placeholder="Your age"
+                min="1"
+                max="120"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="appointment-date">Preferred Date & Time *</label>
+            <input type="datetime-local" id="appointment-date" required />
+          </div>
+
+          <div class="form-group">
+            <label>Select Doctor *</label>
+            <div class="doctor-select" id="doctor-select">
+              <!-- Doctors will be dynamically inserted here -->
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="appointment-reason">Reason for Visit</label>
+            <textarea
+              id="appointment-reason"
+              placeholder="Describe your symptoms or reason for visit"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg">
+            <i class="fas fa-check"></i> Confirm Appointment
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <p>
+          &copy; 2024 BooknMeet. All rights reserved. | Helping you find quality
+          healthcare.
+        </p>
+        <div class="social-links">
+          <a href="#" title="Facebook"><i class="fab fa-facebook"></i></a>
+          <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
